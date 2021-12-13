@@ -1,4 +1,3 @@
-# ip.src==your.local.ip.addr && ip.dst==your.VM.ip.addr && ip.proto=="TCP"
 # ffxiv login server: 204.2.229.9
 import pyshark
 import winsound
@@ -11,7 +10,7 @@ logger = logging.getLogger(__name__)
 
 # define human readable names for filters
 FFXIV_LOGIN_SERVER = "204.2.229.9"
-from_login_server = f"ip.addr=={FFXIV_LOGIN_SERVER}"
+from_login_server = f"ip.src=={FFXIV_LOGIN_SERVER}"
 initiates_closing_connection = "tcp.connection.fin_active"
 
 
@@ -24,6 +23,7 @@ def sniff_continuously(interface, display_filter):
     )
 
     for packet in capture.sniff_continuously():
+        # Skip is packet is too small for reconnect
         logger.info("Packet arrived, playing audio")
         logger.debug(packet)
         for i in range(0, 5):
@@ -35,4 +35,5 @@ if __name__ == '__main__':
     sniff_continuously(
         interface="Ethernet",
         display_filter=f"({from_login_server})&&({initiates_closing_connection})"
+        # display_filter="",
     )
